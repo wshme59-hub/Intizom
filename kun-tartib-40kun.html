@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>40 Kunlik Intizom</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080c10;
+  --bg2: #0e1419;
+  --bg3: #161d26;
+  --gold: #d4a843;
+  --gold2: #f0c96a;
+  --gold-dim: rgba(212,168,67,0.12);
+  --green: #3fb950;
+  --green-dim: rgba(63,185,80,0.12);
+  --red: #f85149;
+  --blue: #79c0ff;
+  --text: #cdd9e5;
+  --text2: #768390;
+  --border: #222d38;
+  --border2: #2d3b4a;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Starfield background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 10% 20%, rgba(212,168,67,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 30% 60%, rgba(255,255,255,0.2) 0%, transparent 100%),
+    radial-gradient(1px 1px at 60% 10%, rgba(255,255,255,0.15) 0%, transparent 100%),
+    radial-gradient(1px 1px at 80% 80%, rgba(212,168,67,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 50% 40%, rgba(255,255,255,0.1) 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 30%, rgba(255,255,255,0.2) 0%, transparent 100%),
+    radial-gradient(1px 1px at 20% 90%, rgba(212,168,67,0.2) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 0 16px 60px; }
+
+/* HEADER */
+.header {
+  text-align: center;
+  padding: 50px 20px 40px;
+  position: relative;
+}
+.header-glow {
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 400px; height: 200px;
+  background: radial-gradient(ellipse, rgba(212,168,67,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+.bismillah {
+  font-family: 'Amiri', serif;
+  font-size: 26px;
+  color: var(--gold);
+  margin-bottom: 16px;
+  letter-spacing: 3px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 0.1s forwards;
+}
+.header h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 38px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.1;
+  margin-bottom: 10px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 0.2s forwards;
+}
+.header h1 span { color: var(--gold); }
+.header-sub {
+  font-size: 14px;
+  color: var(--text2);
+  font-weight: 300;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 0.3s forwards;
+}
+
+@keyframes fadeUp {
+  from { opacity:0; transform: translateY(20px); }
+  to { opacity:1; transform: translateY(0); }
+}
+
+/* TABS */
+.tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 5px;
+  margin-bottom: 24px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 0.4s forwards;
+}
+.tab {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: var(--text2);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+.tab.active {
+  background: var(--bg3);
+  color: var(--gold);
+  border: 1px solid var(--border2);
+}
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* PROGRESS */
+.progress-bar-wrap {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 22px;
+  margin-bottom: 16px;
+}
+.pb-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+.pb-label { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; }
+.pb-nums { text-align: right; }
+.pb-pct { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: var(--gold); line-height: 1; }
+.pb-days { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.bar-bg { background: var(--bg3); border-radius: 8px; height: 8px; overflow: hidden; }
+.bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--gold2));
+  border-radius: 8px;
+  transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1);
+  position: relative;
+}
+.bar-fill::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 20px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4));
+  border-radius: 8px;
+}
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.stat-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  text-align: center;
+}
+.stat-val { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; color: var(--gold); }
+.stat-lbl { font-size: 11px; color: var(--text2); margin-top: 3px; }
+
+/* 40 DAYS GRID */
+.days-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+@media(max-width:500px) { .days-grid { grid-template-columns: repeat(5,1fr); } }
+
+.day-cell {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: var(--bg2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.18s;
+  position: relative;
+  overflow: hidden;
+}
+.day-cell:hover { border-color: var(--gold); transform: scale(1.07); }
+.day-cell.done {
+  background: var(--green-dim);
+  border-color: var(--green);
+}
+.day-cell.done::after {
+  content: '✓';
+  position: absolute;
+  top: 2px; right: 4px;
+  font-size: 9px;
+  color: var(--green);
+}
+.day-cell.today {
+  background: var(--gold-dim);
+  border-color: var(--gold);
+  box-shadow: 0 0 20px rgba(212,168,67,0.25);
+}
+.day-num { font-family:'Syne',sans-serif; font-size:16px; font-weight:800; color:var(--text2); }
+.day-cell.done .day-num { color: var(--green); }
+.day-cell.today .day-num { color: var(--gold); }
+
+/* JADVAL */
+.jadval-section { margin-bottom: 16px; }
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.section-head-icon { font-size: 20px; }
+.section-head-title { font-family:'Syne',sans-serif; font-size:16px; font-weight:700; }
+.section-head-badge {
+  margin-left: auto;
+  font-size: 11px;
+  background: var(--gold-dim);
+  color: var(--gold);
+  border: 1px solid rgba(212,168,67,0.3);
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 14px;
+}
+
+.task-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border);
+  transition: opacity 0.2s;
+}
+.task-row:last-child { border-bottom: none; padding-bottom: 0; }
+.task-row:first-child { padding-top: 0; }
+
+.task-icon { font-size: 20px; min-width: 28px; text-align: center; }
+.task-info { flex: 1; }
+.task-name { font-size: 14px; font-weight: 500; color: var(--text); }
+.task-detail { font-size: 12px; color: var(--text2); margin-top: 2px; font-weight: 300; }
+.task-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.badge-gold { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(212,168,67,0.25); }
+.badge-green { background: var(--green-dim); color: var(--green); border: 1px solid rgba(63,185,80,0.25); }
+.badge-blue { background: rgba(121,192,255,0.1); color: var(--blue); border: 1px solid rgba(121,192,255,0.25); }
+
+/* ODAT TRACKER */
+.habit-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.habit-row:last-child { border-bottom: none; }
+.habit-icon { font-size: 20px; min-width: 28px; text-align: center; }
+.habit-info { flex: 1; }
+.habit-name { font-size: 14px; font-weight: 500; }
+.habit-target { font-size: 11px; color: var(--text2); margin-top: 2px; }
+.check-btn {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  border: 2px solid var(--border2);
+  background: var(--bg3);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+  transition: all 0.2s;
+  color: transparent;
+}
+.check-btn.checked {
+  background: var(--green);
+  border-color: var(--green);
+  color: white;
+}
+
+/* KUN YAKUNLASH */
+.btn-done {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--gold), #b8891f);
+  border: none;
+  border-radius: 14px;
+  color: #000;
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.25s;
+  margin-top: 6px;
+}
+.btn-done:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(212,168,67,0.35); }
+
+/* KUN TARTIBI - 40 kun jadval */
+.week-block { margin-bottom: 20px; }
+.week-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.week-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+.prog-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.prog-row:last-child { border-bottom: none; }
+.prog-day { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; color:var(--text2); min-width:55px; }
+.prog-items { flex:1; display:flex; flex-wrap:wrap; gap:6px; }
+.prog-tag {
+  font-size:11px; font-weight:500;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  color: var(--text2);
+}
+.prog-tag.highlight { background: var(--gold-dim); border-color: rgba(212,168,67,0.3); color: var(--gold2); }
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--bg2);
+  border: 1px solid var(--green);
+  color: var(--green);
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  z-index: 999;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* Hadis card */
+.hadis-card {
+  background: linear-gradient(135deg, rgba(212,168,67,0.08), rgba(212,168,67,0.03));
+  border: 1px solid rgba(212,168,67,0.25);
+  border-radius: 16px;
+  padding: 22px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+.hadis-arabic { font-family:'Amiri',serif; font-size:20px; color:var(--gold); margin-bottom:10px; line-height:1.8; }
+.hadis-uz { font-size:13px; color:var(--text2); font-style:italic; line-height:1.7; }
+.hadis-source { font-size:11px; color:var(--gold); margin-top:8px; opacity:0.7; }
+
+/* Responsive */
+@media(max-width:600px) {
+  .header h1 { font-size:28px; }
+  .stats-row { grid-template-columns: repeat(3,1fr); }
+  .stat-val { font-size:20px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="header-glow"></div>
+    <div class="bismillah">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>
+    <h1>40 Kunlik <span>Intizom</span></h1>
+    <p class="header-sub">Muslim · Ishlovchi · Kino Sevар · After Effects O'rganuvchi</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('bugun')">📋 Bugun</button>
+    <button class="tab" onclick="switchTab('jadval')">🗓 Jadval</button>
+    <button class="tab" onclick="switchTab('progress')">📈 Progress</button>
+    <button class="tab" onclick="switchTab('osish')">📊 O'sish</button>
+  </div>
+
+  <!-- BUGUN -->
+  <div class="tab-content active" id="tab-bugun">
+
+    <div class="hadis-card">
+      <div class="hadis-arabic">«إِنَّ الله يُحِبُّ إِذَا عَمِلَ أَحَدُكُمْ عَمَلًا أَنْ يُتْقِنَهُ»</div>
+      <div class="hadis-uz">«Alloh taolo bandasi biror ish qilganida, uni mukammal qilishini sevadi»</div>
+      <div class="hadis-source">— Sahih al-Jami'</div>
+    </div>
+
+    <!-- Ertalab -->
+    <div class="card">
+      <div class="section-head">
+        <span class="section-head-icon">🌅</span>
+        <span class="section-head-title">Ertalab — 04:00</span>
+        <span class="section-head-badge">Bomdod</span>
+      </div>
+      <div class="task-row"><span class="task-icon">🌙</span><div class="task-info"><div class="task-name">Uyg'onish</div><div class="task-detail">Quyosh chiqishidan 40 daqiqa oldin — ~04:00</div></div></div>
+      <div class="task-row"><span class="task-icon">🪥</span><div class="task-info"><div class="task-name">Sunnat amallar</div><div class="task-detail">Misvaak, g'usl, kiyinish — sunnat tartibida</div></div></div>
+      <div class="task-row"><span class="task-icon">🕌</span><div class="task-info"><div class="task-name">Bomdod namozi</div><div class="task-detail">Vaqtida, ikki rakat sunnat + farz</div></div></div>
+      <div class="task-row"><span class="task-icon">📿</span><div class="task-info"><div class="task-name">Zikr</div><div class="task-detail" id="zikr-detail">15 daqiqa — SubhanAlloh, Alhamdulilloh, Allohu akbar</div></div><span class="task-badge badge-gold" id="zikr-badge">15 daqiqa</span></div>
+      <div class="task-row"><span class="task-icon">🎬</span><div class="task-info"><div class="task-name">After Effects darslari</div><div class="task-detail" id="ae-detail">Dars davom etadi — hozir 6-dars (AI + animatsiya)</div></div><span class="task-badge badge-blue" id="ae-badge">1 soat</span></div>
+      <div class="task-row"><span class="task-icon">💪</span><div class="task-info"><div class="task-name">Sport</div><div class="task-detail" id="sport-detail">Push-up</div></div><span class="task-badge badge-green" id="sport-badge">2 ta</span></div>
+      <div class="task-row"><span class="task-icon">📖</span><div class="task-info"><div class="task-name">Kitob</div><div class="task-detail">Badiiy yoki rivojlantiruvchi kitob</div></div><span class="task-badge badge-gold">10 daqiqa</span></div>
+      <div class="task-row"><span class="task-icon">🍳</span><div class="task-info"><div class="task-name">Nonushta</div><div class="task-detail">Sog'lom, to'yimli nonushta</div></div></div>
+    </div>
+
+    <!-- Ish -->
+    <div class="card">
+      <div class="section-head">
+        <span class="section-head-icon">💼</span>
+        <span class="section-head-title">Ish vaqti — 07:00–20:00</span>
+        <span class="section-head-badge">Ishda</span>
+      </div>
+      <div class="task-row"><span class="task-icon">☀️</span><div class="task-info"><div class="task-name">Ish</div><div class="task-detail">Eng muhim vazifadan boshlash</div></div></div>
+      <div class="task-row"><span class="task-icon">🍽️</span><div class="task-info"><div class="task-name">Tushlik</div><div class="task-detail">Yengil, haddan ziyod emas</div></div></div>
+      <div class="task-row"><span class="task-icon">🕌</span><div class="task-info"><div class="task-name">Peshin namozi</div><div class="task-detail">Ish joyida, vaqtida</div></div><span class="task-badge badge-gold">Farz</span></div>
+      <div class="task-row"><span class="task-icon">😴</span><div class="task-info"><div class="task-name">Qaylula</div><div class="task-detail">Tushlikdan keyin qisqa uyqu — Sunnat</div></div><span class="task-badge badge-green">20–30 daq</span></div>
+      <div class="task-row"><span class="task-icon">💼</span><div class="task-info"><div class="task-name">Ish davom</div><div class="task-detail">Ikkinchi yarmi</div></div></div>
+      <div class="task-row"><span class="task-icon">🕌</span><div class="task-info"><div class="task-name">Asr namozi</div><div class="task-detail">Vaqtida</div></div><span class="task-badge badge-gold">Farz</span></div>
+    </div>
+
+    <!-- Kechqurun -->
+    <div class="card">
+      <div class="section-head">
+        <span class="section-head-icon">🌙</span>
+        <span class="section-head-title">Kechqurun — Shomdan keyin</span>
+        <span class="section-head-badge">Uy</span>
+      </div>
+      <div class="task-row"><span class="task-icon">🕌</span><div class="task-info"><div class="task-name">Shom namozi</div><div class="task-detail">Vaqtida</div></div><span class="task-badge badge-gold">Farz</span></div>
+      <div class="task-row"><span class="task-icon">🍲</span><div class="task-info"><div class="task-name">Kechki ovqat</div><div class="task-detail">Oilaviy, yengil ovqat</div></div></div>
+      <div class="task-row"><span class="task-icon">📖</span><div class="task-info"><div class="task-name">Qur'on takrori</div><div class="task-detail">Kechqurun — takror, hifz mustahkamlash</div></div><span class="task-badge badge-gold" id="quron-badge">30 daqiqa</span></div>
+      <div class="task-row"><span class="task-icon">🎬</span><div class="task-info"><div class="task-name">Kino</div><div class="task-detail">Family Guy yoki boshqa film/serial</div></div><span class="task-badge badge-blue">2 soat</span></div>
+      <div class="task-row"><span class="task-icon">✍️</span><div class="task-info"><div class="task-name">Kun sarhisobi</div><div class="task-detail">Bugun nima qildim? Nima yaxshi ketdi?</div></div></div>
+      <div class="task-row"><span class="task-icon">📝</span><div class="task-info"><div class="task-name">Ertangi kun rejasi</div><div class="task-detail">3 ta asosiy vazifa yozib qo'yish</div></div></div>
+      <div class="task-row"><span class="task-icon">🕌</span><div class="task-info"><div class="task-name">Xufton namozi</div><div class="task-detail">Kunni ibodatda yakunlash</div></div><span class="task-badge badge-gold">Farz</span></div>
+      <div class="task-row"><span class="task-icon">📚</span><div class="task-info"><div class="task-name">Kitob (uyqu oldidan)</div><div class="task-detail">Hayol jamlaydi, uyqu chaqiradi</div></div><span class="task-badge badge-blue">15–30 daq</span></div>
+      <div class="task-row"><span class="task-icon">🌙</span><div class="task-info"><div class="task-name">Uyqu</div><div class="task-detail">Uyqu duosi — chap yonboshda</div></div><span class="task-badge badge-green">23:00 gacha</span></div>
+    </div>
+
+    <!-- Odatlar nazorati -->
+    <div class="card">
+      <div class="section-head">
+        <span class="section-head-icon">✅</span>
+        <span class="section-head-title">Bugungi Odatlar</span>
+      </div>
+      <div class="habit-row"><span class="habit-icon">🕌</span><div class="habit-info"><div class="habit-name">5 vaqt namoz</div><div class="habit-target">Bomdod, Peshin, Asr, Shom, Xufton</div></div><div class="check-btn" onclick="toggleCheck(this)">✓</div></div>
+      <div class="habit-row"><span class="habit-icon">📿</span><div class="habit-info"><div class="habit-name">Zikr</div><div class="habit-target" id="h-zikr">15 daqiqa</div></div><div class="check-btn" onclick="toggleCheck(this)">✓</div></div>
+      <div class="habit-row"><span class="habit-icon">🎬</span><div class="habit-info"><div class="habit-name">AE darslari</div><div class="habit-target">Ertalab — bomdoddan nonushtaga qadar</div></div><div class="check-btn" onclick="toggleCheck(this)">✓</div></div>
+      <div class="habit-row"><span class="habit-icon">💪</span><div class="habit-info"><div class="habit-name">Sport</div><div class="habit-target" id="h-sport">2 ta push-up</div></div><div class="check-btn" onclick="toggleCheck(this)">✓</div></div>
+      <div class="habit-row"><span class="habit-icon">📖</span><div class="habit-info"><div class="habit-name">Qur'on takrori</div><div class="habit-target" id="h-quron">30 daqiqa</div></div><div class="check-btn" onclick="toggleCheck(this)">✓</div></div>
+      <div class="habit-row"><span class="habit-icon">😴</span><div class="habit-info"><div class="habit-name">Qaylula</div><div class="habit-target">Tushlikdan keyin 20–30 daqiqa</div></div><div class="check-btn" onclick="toggleCheck(this)">✓</div></div>
+      <div class="habit-row"><span class="habit-icon">🌙</span><div class="habit-info"><div class="habit-name">Uyqu</div><div class="habit-target">23:00 gacha</div></div><div class="check-btn" onclick="toggleCheck(this)">✓</div></div>
+      <button class="btn-done" onclick="completeDay()">🌙 Kunni Yakunlash</button>
+    </div>
+
+  </div>
+
+  <!-- JADVAL tab -->
+  <div class="tab-content" id="tab-jadval">
+    <div class="card">
+      <div class="section-head">
+        <span class="section-head-icon">📅</span>
+        <span class="section-head-title">Kunlik Tartib — Umumiy Ko'rinish</span>
+      </div>
+      <div class="task-row"><span class="task-icon">🌙</span><div class="task-info"><div class="task-name">04:00 — Uyg'onish</div><div class="task-detail">Quyosh chiqishidan 40 daqiqa oldin</div></div></div>
+      <div class="task-row"><span class="task-icon">🪥</span><div class="task-info"><div class="task-name">Sunnat amallar</div><div class="task-detail">Misvaak, g'usl, kiyinish</div></div></div>
+      <div class="task-row"><span class="task-icon">🕌</span><div class="task-info"><div class="task-name">Bomdod namozi</div><div class="task-detail">Vaqtida</div></div><span class="task-badge badge-gold">Farz</span></div>
+      <div class="task-row"><span class="task-icon">📿</span><div class="task-info"><div class="task-name">Zikr</div><div class="task-detail">Bomdoddan keyin</div></div><span class="task-badge badge-gold">15 daqiqa →</span></div>
+      <div class="task-row"><span class="task-icon">🎬</span><div class="task-info"><div class="task-name">After Effects darslari</div><div class="task-detail">Ertalab sokin vaqt — eng yaxshi o'qish vaqti</div></div><span class="task-badge badge-blue">1 soat →</span></div>
+      <div class="task-row"><span class="task-icon">💪</span><div class="task-info"><div class="task-name">Sport</div><div class="task-detail">Push-up, asta-sekin oshib boradi</div></div><span class="task-badge badge-green">2 ta →</span></div>
+      <div class="task-row"><span class="task-icon">📖</span><div class="task-info"><div class="task-name">Kitob (ertalab)</div><div class="task-detail">Nonushtadan oldin</div></div><span class="task-badge badge-blue">10 daqiqa</span></div>
+      <div class="task-row"><span class="task-icon">🍳</span><div class="task-info"><div class="task-name">Nonushta</div><div class="task-detail">Keyin ishga</div></div></div>
+      <div class="task-row"><span class="task-icon">💼</span><div class="task-info"><div class="task-name">07:00–20:00 — Ish</div><div class="task-detail">Peshin + Qaylula + Asr ichida</div></div></div>
+      <div class="task-row"><span class="task-icon">🕌</span><div class="task-info"><div class="task-name">Shom namozi</div><div class="task-detail">Uyga kelgach birinchi ish</div></div><span class="task-badge badge-gold">Farz</span></div>
+      <div class="task-row"><span class="task-icon">🍲</span><div class="task-info"><div class="task-name">Kechki ovqat</div><div class="task-detail">Oilaviy vaqt</div></div></div>
+      <div class="task-row"><span class="task-icon">📖</span><div class="task-info"><div class="task-name">Qur'on takrori</div><div class="task-detail">Kechqurun</div></div><span class="task-badge badge-gold">30 daqiqa →</span></div>
+      <div class="task-row"><span class="task-icon">🎬</span><div class="task-info"><div class="task-name">Kino</div><div class="task-detail">Dam olish, oila bilan yoki yolg'iz</div></div><span class="task-badge badge-blue">2 soat</span></div>
+      <div class="task-row"><span class="task-icon">✍️</span><div class="task-info"><div class="task-name">Kun sarhisobi + Ertangi reja</div><div class="task-detail">Qisqa, aniq</div></div></div>
+      <div class="task-row"><span class="task-icon">🕌</span><div class="task-info"><div class="task-name">Xufton namozi</div><div class="task-detail">Kunni yoping</div></div><span class="task-badge badge-gold">Farz</span></div>
+      <div class="task-row"><span class="task-icon">📚</span><div class="task-info"><div class="task-name">Kitob (uyqu oldidan)</div><div class="task-detail">Badiiy — hayol jamlaydi</div></div><span class="task-badge badge-blue">15–30 daq</span></div>
+      <div class="task-row"><span class="task-icon">🌙</span><div class="task-info"><div class="task-name">Uyqu — 23:00 gacha</div><div class="task-detail">Chap yonboshda, uyqu duosi bilan</div></div></div>
+    </div>
+  </div>
+
+  <!-- PROGRESS tab -->
+  <div class="tab-content" id="tab-progress">
+    <div class="progress-bar-wrap">
+      <div class="pb-top">
+        <div><div class="pb-label">40 Kunlik Yo'l</div><div style="font-size:12px;color:var(--text2);margin-top:4px">Har kun bir qadam</div></div>
+        <div class="pb-nums"><div class="pb-pct" id="pct">0%</div><div class="pb-days"><span id="done-count">0</span> / 40 kun</div></div>
+      </div>
+      <div class="bar-bg"><div class="bar-fill" id="bar" style="width:0%"></div></div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-val" id="s-done">0</div><div class="stat-lbl">Bajarildi</div></div>
+      <div class="stat-card"><div class="stat-val" id="s-streak">0</div><div class="stat-lbl">🔥 Streak</div></div>
+      <div class="stat-card"><div class="stat-val" id="s-left">40</div><div class="stat-lbl">Qoldi</div></div>
+    </div>
+
+    <div class="card">
+      <div class="section-head">
+        <span class="section-head-icon">📅</span>
+        <span class="section-head-title">40 Kunlik Panель</span>
+      </div>
+      <div class="days-grid" id="days-grid"></div>
+    </div>
+  </div>
+
+  <!-- O'SISH tab -->
+  <div class="tab-content" id="tab-osish">
+    <div class="card">
+      <div class="section-head">
+        <span class="section-head-icon">📊</span>
+        <span class="section-head-title">Bosqichma-bosqich O'sish Rejasi</span>
+      </div>
+
+      <div class="week-block">
+        <div class="week-title">1–10 kun — Boshlash</div>
+        <div class="prog-row"><div class="prog-day">Sport</div><div class="prog-items"><span class="prog-tag highlight">2 ta push-up</span><span class="prog-tag">Har kuni</span></div></div>
+        <div class="prog-row"><div class="prog-day">Zikr</div><div class="prog-items"><span class="prog-tag highlight">15 daqiqa</span></div></div>
+        <div class="prog-row"><div class="prog-day">AE</div><div class="prog-items"><span class="prog-tag highlight">1 soat</span><span class="prog-tag">Ertalab</span></div></div>
+        <div class="prog-row"><div class="prog-day">Qur'on</div><div class="prog-items"><span class="prog-tag highlight">30 daqiqa</span><span class="prog-tag">Kechqurun</span></div></div>
+        <div class="prog-row"><div class="prog-day">Uyqu</div><div class="prog-items"><span class="prog-tag highlight">23:00 gacha</span></div></div>
+      </div>
+
+      <div class="week-block">
+        <div class="week-title">11–20 kun — O'sish</div>
+        <div class="prog-row"><div class="prog-day">Sport</div><div class="prog-items"><span class="prog-tag highlight">10 ta push-up</span><span class="prog-tag">+ stretch</span></div></div>
+        <div class="prog-row"><div class="prog-day">Zikr</div><div class="prog-items"><span class="prog-tag highlight">20 daqiqa</span></div></div>
+        <div class="prog-row"><div class="prog-day">AE</div><div class="prog-items"><span class="prog-tag highlight">1.5 soat</span><span class="prog-tag">Loyiha boshlash</span></div></div>
+        <div class="prog-row"><div class="prog-day">Qur'on</div><div class="prog-items"><span class="prog-tag highlight">45 daqiqa</span><span class="prog-tag">Ertalab ham qo'shiladi</span></div></div>
+        <div class="prog-row"><div class="prog-day">Uyqu</div><div class="prog-items"><span class="prog-tag highlight">22:30 gacha</span></div></div>
+      </div>
+
+      <div class="week-block">
+        <div class="week-title">21–30 kun — Mustahkamlash</div>
+        <div class="prog-row"><div class="prog-day">Sport</div><div class="prog-items"><span class="prog-tag highlight">25 ta push-up</span><span class="prog-tag">+ 5 daqiqa yugurish</span></div></div>
+        <div class="prog-row"><div class="prog-day">Zikr</div><div class="prog-items"><span class="prog-tag highlight">25 daqiqa</span></div></div>
+        <div class="prog-row"><div class="prog-day">AE</div><div class="prog-items"><span class="prog-tag highlight">2 soat</span><span class="prog-tag">Shaxsiy kino loyihasi</span></div></div>
+        <div class="prog-row"><div class="prog-day">Qur'on</div><div class="prog-items"><span class="prog-tag highlight">1 soat</span><span class="prog-tag">Ertalab + kechqurun</span></div></div>
+        <div class="prog-row"><div class="prog-day">Uyqu</div><div class="prog-items"><span class="prog-tag highlight">22:00 gacha</span></div></div>
+      </div>
+
+      <div class="week-block">
+        <div class="week-title">31–40 kun — Intizom</div>
+        <div class="prog-row"><div class="prog-day">Sport</div><div class="prog-items"><span class="prog-tag highlight">50 ta push-up</span><span class="prog-tag">+ 10 daqiqa yugurish</span></div></div>
+        <div class="prog-row"><div class="prog-day">Zikr</div><div class="prog-items"><span class="prog-tag highlight">30 daqiqa</span></div></div>
+        <div class="prog-row"><div class="prog-day">AE</div><div class="prog-items"><span class="prog-tag highlight">2 soat</span><span class="prog-tag">Professional darajaga o'tish</span></div></div>
+        <div class="prog-row"><div class="prog-day">Qur'on</div><div class="prog-items"><span class="prog-tag highlight">1 soat+</span><span class="prog-tag">Muntazam hifz</span></div></div>
+        <div class="prog-row"><div class="prog-day">Uyqu</div><div class="prog-items"><span class="prog-tag highlight">22:00–04:00</span><span class="prog-tag">Payg'ambar ﷺ tartibi</span></div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast">✅ Kun yakunlandi!</div>
+
+<script>
+// State
+function getState() {
+  try {
+    return JSON.parse(localStorage.getItem('intizom40') || '{"completed":[],"currentDay":1}');
+  } catch(e) {
+    return window._st || (window._st = {completed:[], currentDay:1});
+  }
+}
+function saveState(s) {
+  try { localStorage.setItem('intizom40', JSON.stringify(s)); }
+  catch(e) { window._st = s; }
+}
+
+// Tabs
+function switchTab(id) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  event.target.classList.add('active');
+  if (id === 'progress') buildGrid();
+}
+
+// Habits
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+}
+
+// Complete day
+function completeDay() {
+  const s = getState();
+  const day = s.currentDay;
+  if (s.completed.includes(day)) { showToast('Bu kun allaqachon bajarilgan! 🌟'); return; }
+  s.completed.push(day);
+  if (day < 40) s.currentDay = day + 1;
+  saveState(s);
+  document.querySelectorAll('.check-btn').forEach(b => b.classList.remove('checked'));
+  updateProgress();
+  buildGrid();
+  showToast(day === 40 ? '🏆 40 kun tamom! Alloh qabul qilsin!' : `✅ ${day}-kun bajarildi! Jazakallahu xayran!`);
+}
+
+// Grid
+function buildGrid() {
+  const s = getState();
+  const grid = document.getElementById('days-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  for (let i = 1; i <= 40; i++) {
+    const d = document.createElement('div');
+    d.className = 'day-cell';
+    d.innerHTML = `<div class="day-num">${i}</div>`;
+    if (s.completed.includes(i)) d.classList.add('done');
+    else if (i === s.currentDay) d.classList.add('today');
+    d.onclick = () => { s.currentDay = i; saveState(s); buildGrid(); updateProgress(); };
+    grid.appendChild(d);
+  }
+}
+
+// Progress
+function updateProgress() {
+  const s = getState();
+  const done = s.completed.length;
+  const pct = Math.round((done / 40) * 100);
+  const el = id => document.getElementById(id);
+  if(el('pct')) el('pct').textContent = pct + '%';
+  if(el('bar')) el('bar').style.width = pct + '%';
+  if(el('done-count')) el('done-count').textContent = done;
+  if(el('s-done')) el('s-done').textContent = done;
+  if(el('s-left')) el('s-left').textContent = 40 - done;
+  // Streak
+  let streak = 0;
+  for (let i = s.currentDay - 1; i >= 1; i--) {
+    if (s.completed.includes(i)) streak++;
+    else break;
+  }
+  if(el('s-streak')) el('s-streak').textContent = streak;
+}
+
+// O'sish: update badges based on current day
+function updateBadges() {
+  const s = getState();
+  const day = s.currentDay;
+  let sport, zikr, ae;
+
+  if (day <= 10) { sport = '2 ta'; zikr = '15 daqiqa'; ae = '1 soat'; }
+  else if (day <= 20) { sport = '10 ta'; zikr = '20 daqiqa'; ae = '1.5 soat'; }
+  else if (day <= 30) { sport = '25 ta'; zikr = '25 daqiqa'; ae = '2 soat'; }
+  else { sport = '50 ta'; zikr = '30 daqiqa'; ae = '2 soat'; }
+
+  const el = id => document.getElementById(id);
+  if(el('sport-badge')) el('sport-badge').textContent = sport + ' push-up';
+  if(el('zikr-badge')) el('zikr-badge').textContent = zikr;
+  if(el('ae-badge')) el('ae-badge').textContent = ae;
+  if(el('h-sport')) el('h-sport').textContent = sport + ' ta push-up';
+  if(el('h-zikr')) el('h-zikr').textContent = zikr;
+}
+
+// Toast
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// Init
+buildGrid();
+updateProgress();
+updateBadges();
+</script>
+</body>
+</html>
