@@ -425,6 +425,7 @@ body::before {
     <button class="tab" onclick="switchTab('jadval')">🗓 Jadval</button>
     <button class="tab" onclick="switchTab('progress')">📈 Progress</button>
     <button class="tab" onclick="switchTab('osish')">📊 O'sish</button>
+    <button class="tab" onclick="switchTab('notif')">🔔 Eslatma</button>
   </div>
 
   <!-- BUGUN -->
@@ -604,6 +605,30 @@ body::before {
 
 </div>
 
+
+  <!-- ESLATMA tab -->
+  <div class="tab-content" id="tab-notif">
+    <div class="card">
+      <div class="section-head">
+        <span class="section-head-icon">🔔</span>
+        <span class="section-head-title">Kunlik Bildirishnomalar</span>
+      </div>
+      <div style="background:var(--gold-dim);border:1px solid rgba(212,168,67,0.3);border-radius:12px;padding:16px;margin-bottom:16px;">
+        <div style="font-size:13px;color:var(--gold2);font-weight:600;margin-bottom:6px;">📍 Farg'ona, Buvayda — 24-may dan boshlab</div>
+        <div style="font-size:12px;color:var(--text2);">Har hafta vaqtlar 10 daqiqa oldinroq siljiydi. Hozir: <span id="week-info" style="color:var(--gold)">hisoblanmoqda...</span></div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
+        <tbody id="notif-table"></tbody>
+      </table>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:16px;padding:12px;background:var(--bg3);border-radius:10px;">
+        ⚠️ Bildirishnoma ishlashi uchun sayt ochiq yoki asosiy ekranga o'rnatilgan bo'lishi kerak. Namoz vaqtlari uchun <b style="color:var(--gold)">Muslim.uz</b> ilovasini ishlating.
+      </div>
+      <button class="btn-done" id="notif-btn" onclick="enableNotifs()" style="background:linear-gradient(135deg,#0d2b4a,#1a3a5c);color:#79c0ff;border:1px solid #79c0ff;">
+        🔔 Bildirishnomalarni Yoqish
+      </button>
+    </div>
+  </div>
+
 <div class="toast" id="toast">✅ Kun yakunlandi!</div>
 
 <script>
@@ -712,10 +737,139 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 3500);
 }
 
+// ===== BILDIRISHNOMA TIZIMI =====
+// Farg'ona, Buvayda — 24-may dan boshlab quyosh vaqtlari
+// May oxiri: ~05:05, Iyun boshi: ~04:50, Iyun o'rta: ~04:44, Iyul: ~04:48
+// Har hafta 10 daqiqa oldinroq siljish
+
+const START_DATE = new Date('2026-05-24');
+
+// Hafta raqamini hisoblash (0 dan boshlanadi)
+function getWeekNum() {
+  const today = new Date();
+  const diff = Math.floor((today - START_DATE) / (1000 * 60 * 60 * 24));
+  return Math.min(Math.floor(diff / 7), 5); // max 5 hafta
+}
+
+// Vaqtni daqiqaga o'girish
+function timeToMin(h, m) { return h * 60 + m; }
+
+// Haftalik siljish bilan vaqt hisoblash
+function shiftedTime(baseH, baseM, shiftPerWeek) {
+  const week = getWeekNum();
+  const totalMin = timeToMin(baseH, baseM) - (week * shiftPerWeek);
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+  return { h, m, str: `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}` };
+}
+
+// Bildirishnomalar ro'yxati (base vaqt, haftalik siljish daqiqada)
+const NOTIFICATIONS = [
+  { id: 'uyg', label: '🌙 Uyg\'onish vaqti!', msg: 'Bismillah! Yangi kun boshlandi', baseH: 4, baseM: 0, shift: 10 },
+  { id: 'sport', label: '💪 Sport vaqti!', msg: 'Push-up va harakat — kuchingizni oshiring!', baseH: 5, baseM: 30, shift: 10 },
+  { id: 'kitob1', label: '📖 Kitob vaqti!', msg: 'Ertalabki 10 daqiqa kitob', baseH: 6, baseM: 0, shift: 10 },
+  { id: 'qaylula', label: '😴 Qaylula vaqti!', msg: 'Sunnat — 20-30 daqiqa uxlang', baseH: 13, baseM: 40, shift: 0 },
+  { id: 'quron', label: '📖 Qur\'on takrori!', msg: 'Kechqurun Qur\'on vaqti', baseH: 20, baseM: 20, shift: 10 },
+  { id: 'sarhisob', label: '✍️ Kun sarhisobi!', msg: 'Bugun nima qildingiz? Yozing', baseH: 21, baseM: 0, shift: 10 },
+  { id: 'reja', label: '📝 Ertangi kun rejasi!', msg: '3 ta asosiy vazifani belgilang', baseH: 21, baseM: 10, shift: 10 },
+  { id: 'yakunla', label: '✅ Kunni yakunlang!', msg: 'Barcha odatlarni belgilab, kunni yoping', baseH: 22, baseM: 0, shift: 10 },
+  { id: 'kitob2', label: '📚 Uyqu oldidan kitob!', msg: 'Kitob oching — uyqu chaqirsin', baseH: 22, baseM: 20, shift: 10 },
+  { id: 'uyqu', label: '🌙 Uyqu vaqti!', msg: 'Uyqu duosini o\'qing — yaxshi uyqu!', baseH: 23, baseM: 0, shift: 10 },
+];
+
+// Bildirishnoma ruxsati so'rash
+async function requestNotifPermission() {
+  if (!('Notification' in window)) {
+    showToast('Brauzeringiz bildirishnomani qo\'llamaydi 😔');
+    return false;
+  }
+  if (Notification.permission === 'granted') return true;
+  if (Notification.permission === 'denied') {
+    showToast('Bildirishnoma bloklangan — Chrome sozlamalaridan yoqing');
+    return false;
+  }
+  const result = await Notification.requestPermission();
+  return result === 'granted';
+}
+
+// Bitta bildirishnoma yuborish (test uchun)
+function sendTestNotif(label, msg) {
+  if (Notification.permission === 'granted') {
+    new Notification(label, {
+      body: msg,
+      icon: 'https://wshme59-hub.github.io/Intizom/icon.png',
+      badge: 'https://wshme59-hub.github.io/Intizom/icon.png'
+    });
+  }
+}
+
+// Keyingi bildirishnomaga qancha vaqt qoldi
+function msUntil(h, m) {
+  const now = new Date();
+  const target = new Date();
+  target.setHours(h, m, 0, 0);
+  if (target <= now) target.setDate(target.getDate() + 1);
+  return target - now;
+}
+
+// Barcha bildirishnomalarni rejalashtirish
+function scheduleAllNotifs() {
+  NOTIFICATIONS.forEach(n => {
+    const t = shiftedTime(n.baseH, n.baseM, n.shift);
+    const ms = msUntil(t.h, t.m);
+    setTimeout(() => {
+      sendTestNotif(n.label, n.msg);
+      // Har kuni takrorlash
+      setInterval(() => sendTestNotif(n.label, n.msg), 24 * 60 * 60 * 1000);
+    }, ms);
+  });
+}
+
+// Bildirishnoma UI ni yangilash
+function renderNotifTable() {
+  const week = getWeekNum();
+  const tbody = document.getElementById('notif-table');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  NOTIFICATIONS.forEach(n => {
+    const t = shiftedTime(n.baseH, n.baseM, n.shift);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="padding:10px 6px;border-bottom:1px solid var(--border);font-size:14px">${n.label}</td>
+      <td style="padding:10px 6px;border-bottom:1px solid var(--border);font-family:'Syne',sans-serif;font-weight:700;color:var(--gold);font-size:14px">${t.str}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('week-info').textContent = `${week + 1}-hafta — ${week * 10} daqiqa oldinroq`;
+}
+
+// Bildirishnoma tugmasi
+async function enableNotifs() {
+  const ok = await requestNotifPermission();
+  if (ok) {
+    scheduleAllNotifs();
+    renderNotifTable();
+    showToast('✅ Bildirishnomalar yoqildi!');
+    document.getElementById('notif-btn').textContent = '✅ Yoqilgan';
+    document.getElementById('notif-btn').style.background = 'var(--green)';
+    localStorage.setItem('notif_enabled', '1');
+  }
+}
+
 // Init
 buildGrid();
 updateProgress();
 updateBadges();
+
+// Bildirishnoma jadvalini ko'rsatish
+renderNotifTable();
+
+// Agar avval yoqilgan bo'lsa
+if (localStorage.getItem('notif_enabled') === '1' && Notification.permission === 'granted') {
+  scheduleAllNotifs();
+  document.getElementById('notif-btn').textContent = '✅ Yoqilgan';
+  document.getElementById('notif-btn').style.background = 'var(--green)';
+}
 </script>
 </body>
 </html>
